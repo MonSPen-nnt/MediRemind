@@ -45,8 +45,57 @@ npm run dev
 
 - `GET /api/health-profile/:id` - lấy hồ sơ theo `id`
 - `POST /api/health-profile` - tạo hồ sơ mới
+- `POST /api/auth/register` - đăng ký tài khoản
 
-Ví dụ body POST:
+### Tạo bảng users
+
+Trước khi dùng đăng ký, tạo bảng `users` trong database PostgreSQL theo schema hiện tại của bạn:
+
+```sql
+CREATE TABLE users (
+  user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20),
+  role user_role NOT NULL DEFAULT 'PATIENT',
+  avatar_url TEXT,
+  is_verified BOOLEAN DEFAULT FALSE,
+  is_active BOOLEAN DEFAULT TRUE,
+  last_login_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMPTZ
+);
+```
+
+### Ví dụ Postman để test đăng ký
+
+URL:
+
+```text
+POST http://localhost:3001/api/auth/register
+```
+
+Body (JSON):
+
+```json
+{
+  "email": "user@example.com",
+  "password": "123456"
+}
+```
+
+Response thành công:
+
+```json
+{
+  "id": 1,
+  "email": "user@example.com"
+}
+```
+
+### Ví dụ body POST hồ sơ sức khỏe
 
 ```json
 {
@@ -62,6 +111,36 @@ Ví dụ body POST:
   "emergencyPhone": "+84912345678"
 }
 ```
+
+## Docker
+
+Docker Compose đã cấu hình sẵn backend và PostgreSQL.
+
+### Chạy bằng Docker
+
+Từ thư mục gốc của repository:
+
+```bash
+docker compose up --build
+```
+
+### Truy cập
+
+- Backend: `http://localhost:3001`
+- PostgreSQL: `localhost:5432`
+
+### Docker Compose cấu hình
+
+Docker Compose sẽ dùng các giá trị môi trường:
+
+- `PG_HOST=postgres`
+- `PG_PORT=5432`
+- `PG_DATABASE=mediremind`
+- `PG_USER=postgres`
+- `PG_PASSWORD=123456`
+- `PORT=3001`
+
+Nếu bạn muốn dùng dữ liệu khác, chỉnh `docker-compose.yml` hoặc `backend/.env`.
 
 ## Frontend Flutter
 
