@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../widgets/auth/animated_auth_body.dart';
@@ -19,6 +20,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _authController = AuthController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -34,10 +36,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    Navigator.pushReplacementNamed(context, AppRoutes.healthProfileSetup);
+
+    try {
+      await _authController.login(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.healthProfileSetup);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -48,8 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: AnimatedAuthBody(
           children: [
             const AuthHeader(
-              title: 'Chào mừng trở lại',
-              subtitle: 'Đăng nhập để xem lịch uống thuốc hôm nay.',
+              title: 'Chao mung tro lai',
+              subtitle: 'Dang nhap de xem lich uong thuoc hom nay.',
               icon: Icons.waving_hand_rounded,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -57,19 +73,21 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email hoặc SĐT',
-                  hint: 'Nhập email hoặc số điện thoại',
+                  label: 'Email',
+                  hint: 'email@example.com',
                   icon: Icons.person_outline_rounded,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Vui lòng nhập email hoặc SĐT'
-                      : null,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Nhap email';
+                    if (!v.contains('@')) return 'Email khong hop le';
+                    return null;
+                  },
                 ),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Mật khẩu',
-                  hint: 'Nhập mật khẩu',
+                  label: 'Mat khau',
+                  hint: 'Nhap mat khau',
                   icon: Icons.lock_outline_rounded,
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
@@ -84,8 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
-                    if (v.length < 6) return 'Tối thiểu 6 ký tự';
+                    if (v == null || v.isEmpty) return 'Nhap mat khau';
+                    if (v.length < 6) return 'Toi thieu 6 ky tu';
                     return null;
                   },
                 ),
@@ -96,18 +114,18 @@ class _LoginScreenState extends State<LoginScreen> {
               child: TextButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, AppRoutes.forgotPassword),
-                child: const Text('Quên mật khẩu?'),
+                child: const Text('Quen mat khau?'),
               ),
             ),
             PrimaryButton(
-              label: 'Đăng nhập',
+              label: 'Dang nhap',
               icon: Icons.login_rounded,
               isLoading: _isLoading,
               onPressed: _onLogin,
             ),
             AuthFooterLink(
-              prefix: 'Chưa có tài khoản?',
-              linkText: 'Đăng ký ngay',
+              prefix: 'Chua co tai khoan?',
+              linkText: 'Dang ky ngay',
               onTap: () => Navigator.pushNamed(context, AppRoutes.register),
             ),
           ],
@@ -116,3 +134,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
