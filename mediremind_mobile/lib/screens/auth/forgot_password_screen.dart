@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../widgets/auth/animated_auth_body.dart';
 import '../../widgets/auth/auth_footer_link.dart';
@@ -18,6 +18,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _authController = AuthController();
   final _emailController = TextEditingController();
   bool _isLoading = false;
 
@@ -27,17 +28,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _sendCode() async {
+  Future<void> _sendResetEmail() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    Navigator.pushNamed(
-      context,
-      AppRoutes.verification,
-      arguments: _emailController.text.trim(),
-    );
+
+    try {
+      await _authController.sendPasswordResetEmail(_emailController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Da gui email khoi phuc mat khau.')),
+      );
+      Navigator.pop(context);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -48,10 +59,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         child: AnimatedAuthBody(
           children: [
             const AuthHeader(
-              title: 'Quên mật khẩu',
-              subtitle: 'Chúng tôi gửi mã 4 số về email đã đăng ký.',
+              title: 'Quen mat khau',
+              subtitle: 'Firebase se gui lien ket dat lai mat khau ve email.',
               icon: Icons.lock_reset_rounded,
-              stepLabel: 'KHÔI PHỤC',
+              stepLabel: 'KHOI PHUC',
             ),
             const SizedBox(height: AppSpacing.lg),
             AuthTextField(
@@ -61,23 +72,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _sendCode(),
+              onFieldSubmitted: (_) => _sendResetEmail(),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Nhập email';
-                if (!v.contains('@')) return 'Email không hợp lệ';
+                if (v == null || v.trim().isEmpty) return 'Nhap email';
+                if (!v.contains('@')) return 'Email khong hop le';
                 return null;
               },
             ),
             const SizedBox(height: AppSpacing.sm),
             PrimaryButton(
-              label: 'Gửi mã xác nhận',
+              label: 'Gui email khoi phuc',
               icon: Icons.send_rounded,
               isLoading: _isLoading,
-              onPressed: _sendCode,
+              onPressed: _sendResetEmail,
             ),
             AuthFooterLink(
-              prefix: 'Nhớ mật khẩu?',
-              linkText: 'Đăng nhập',
+              prefix: 'Nho mat khau?',
+              linkText: 'Dang nhap',
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -86,3 +97,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 }
+

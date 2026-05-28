@@ -14,7 +14,7 @@ class HealthProfileRemoteDataSourceImpl
   HealthProfileRemoteDataSourceImpl({http.Client? client})
     : _client = client ?? http.Client();
 
-  static const _baseUrl = 'http://10.0.2.2:3000';
+  static const _baseUrl = 'http://10.0.2.2:3001';
   final http.Client _client;
 
   @override

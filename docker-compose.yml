@@ -2,12 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: duanflutter
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     ports:
       - "5432:5432"
 
@@ -15,13 +18,17 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+
     restart: unless-stopped
+
     depends_on:
       - postgres
+
     ports:
       - "3001:3001"
+
     environment:
-      PG_HOST: host.docker.internal
+      PG_HOST: postgres
       PG_PORT: 5432
       PG_DATABASE: duanflutter
       PG_USER: postgres

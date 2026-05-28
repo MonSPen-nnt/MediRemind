@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../widgets/auth/animated_auth_body.dart';
@@ -19,6 +20,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _authController = AuthController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -39,13 +41,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đăng ký thành công!')),
-    );
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+
+    try {
+      await _authController.register(
+        email: _emailController.text,
+        password: _passwordController.text,
+        fullName: _nameController.text,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Dang ky thanh cong. Vui long xac minh email.'),
+        ),
+      );
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -56,21 +75,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: AnimatedAuthBody(
           children: [
             const AuthHeader(
-              title: 'Tạo tài khoản',
-              subtitle: 'Bắt đầu hành trình uống thuốc đúng giờ.',
+              title: 'Tao tai khoan',
+              subtitle: 'Bat dau hanh trinh uong thuoc dung gio.',
               icon: Icons.person_add_rounded,
-              stepLabel: 'BƯỚC 1 / 2',
+              stepLabel: 'BUOC 1 / 2',
             ),
             const SizedBox(height: AppSpacing.lg),
             AuthFormGroup(
               children: [
                 AuthTextField(
                   controller: _nameController,
-                  label: 'Họ và tên',
+                  label: 'Ho va ten',
                   icon: Icons.badge_outlined,
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Nhập họ tên' : null,
+                      v == null || v.trim().isEmpty ? 'Nhap ho ten' : null,
                 ),
                 AuthTextField(
                   controller: _emailController,
@@ -79,14 +98,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Nhập email';
-                    if (!v.contains('@')) return 'Email không hợp lệ';
+                    if (v == null || v.trim().isEmpty) return 'Nhap email';
+                    if (!v.contains('@')) return 'Email khong hop le';
                     return null;
                   },
                 ),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Mật khẩu',
+                  label: 'Mat khau',
                   icon: Icons.lock_outline_rounded,
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.next,
@@ -100,14 +119,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Nhập mật khẩu';
-                    if (v.length < 6) return 'Tối thiểu 6 ký tự';
+                    if (v == null || v.isEmpty) return 'Nhap mat khau';
+                    if (v.length < 6) return 'Toi thieu 6 ky tu';
                     return null;
                   },
                 ),
                 AuthTextField(
                   controller: _confirmController,
-                  label: 'Xác nhận mật khẩu',
+                  label: 'Xac nhan mat khau',
                   icon: Icons.verified_user_outlined,
                   obscureText: _obscureConfirm,
                   textInputAction: TextInputAction.done,
@@ -122,21 +141,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                   validator: (v) => v != _passwordController.text
-                      ? 'Mật khẩu không khớp'
+                      ? 'Mat khau khong khop'
                       : null,
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
             PrimaryButton(
-              label: 'Đăng ký',
+              label: 'Dang ky',
               icon: Icons.check_circle_outline_rounded,
               isLoading: _isLoading,
               onPressed: _onRegister,
             ),
             AuthFooterLink(
-              prefix: 'Đã có tài khoản?',
-              linkText: 'Đăng nhập',
+              prefix: 'Da co tai khoan?',
+              linkText: 'Dang nhap',
               onTap: () =>
                   Navigator.pushReplacementNamed(context, AppRoutes.login),
             ),
@@ -146,3 +165,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
