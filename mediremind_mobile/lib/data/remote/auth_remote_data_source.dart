@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../core/config/api_config.dart';
 import '../../models/app_user.dart';
 
 abstract class AuthRemoteDataSource {
@@ -15,7 +16,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({http.Client? client})
     : _client = client ?? http.Client();
 
-  static const _baseUrl = 'http://10.0.2.2:3001';
   final http.Client _client;
 
   @override
@@ -23,14 +23,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String idToken,
     String? fullName,
   }) async {
+    final url = ApiConfig.endpoint('api/auth/firebase');
     final response = await _client.post(
-      Uri.parse('$_baseUrl/api/auth/firebase'),
+      url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'idToken': idToken, 'fullName': fullName}),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Dong bo tai khoan that bai: ${response.statusCode}');
+      final detail = response.body.trim();
+      final suffix = detail.isNotEmpty ? ': $detail' : '';
+      throw Exception(
+        'Dong bo tai khoan that bai (${response.statusCode}) '
+        'tai $url$suffix',
+      );
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;

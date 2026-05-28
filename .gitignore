@@ -1,0 +1,17 @@
+# Local tooling / IDE
+.codex_appdata/
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug scratch files
+dy
+
+# Env & secrets (see backend/.gitignore and mediremind_mobile/.gitignore)
+.env
+.env.*
+!.env.example

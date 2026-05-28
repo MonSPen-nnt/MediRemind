@@ -38,12 +38,17 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _authController.login(
+      final user = await _authController.login(
         email: _emailController.text,
         password: _passwordController.text,
       );
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppRoutes.healthProfileSetup);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.home,
+        (route) => false,
+        arguments: user,
+      );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

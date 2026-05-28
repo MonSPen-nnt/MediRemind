@@ -1,38 +1,45 @@
-# Flutter Firebase Auth setup
+# Flutter Firebase setup
 
-Bat provider Email/Password trong Firebase Console:
+Cac file sau **khong duoc commit** (da co trong `.gitignore`):
 
-1. Firebase Console -> Authentication.
-2. Sign-in method.
-3. Enable Email/Password.
+- `lib/firebase_options.dart`
+- `android/app/google-services.json`
+- `ios/Runner/GoogleService-Info.plist` (neu co)
 
-App dang khoi tao Firebase bang `--dart-define`, vi vay khi chay app can truyen
-cac gia tri lay tu Firebase app config:
+## Cau hinh lan dau
 
-```bash
-flutter run \
-  --dart-define=FIREBASE_API_KEY=your-api-key \
-  --dart-define=FIREBASE_APP_ID=your-app-id \
-  --dart-define=FIREBASE_MESSAGING_SENDER_ID=your-sender-id \
-  --dart-define=FIREBASE_PROJECT_ID=your-project-id \
-  --dart-define=FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com \
-  --dart-define=FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-```
-
-Ban cung co the dung FlutterFire CLI theo huong dan chinh thuc:
+1. Firebase Console -> Authentication -> Sign-in method -> bat **Email/Password**.
+2. Cai FlutterFire CLI va dang nhap:
 
 ```bash
 dart pub global activate flutterfire_cli
+firebase login
+```
+
+3. Trong thu muc `mediremind_mobile`:
+
+```bash
 flutterfire configure
 ```
 
-Neu dung FlutterFire CLI, co the doi `lib/main.dart` sang:
+Lenh nay tao `lib/firebase_options.dart`, `android/app/google-services.json`, va `firebase.json`.
 
-```dart
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+4. Backend: xem `backend/FIREBASE_AUTH_SETUP.md` de dat service account JSON vao `backend/secrets/`.
+
+## Chay app
+
+```bash
+cd mediremind_mobile
+flutter run -d chrome
 ```
 
-va import file `firebase_options.dart` duoc CLI sinh ra.
+Backend Docker phai chay: `docker compose up -d` (tu thu muc goc repo).
 
+## File mau
+
+Neu khong dung FlutterFire CLI, copy:
+
+- `lib/firebase_options.example.dart` -> `lib/firebase_options.dart`
+- `android/app/google-services.json.example` -> `android/app/google-services.json`
+
+roi dien gia tri tu Firebase Console.

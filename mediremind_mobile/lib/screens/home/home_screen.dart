@@ -4,6 +4,7 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_decorations.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../models/app_user.dart';
 import '../../models/health_profile.dart';
 import '../../models/medication_dose.dart';
 import '../../widgets/auth/auth_background.dart';
@@ -17,9 +18,10 @@ import '../../widgets/home/next_dose_hero.dart';
 import '../../widgets/home/today_progress_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.profile});
+  const HomeScreen({super.key, this.profile, this.user});
 
   final HealthProfile? profile;
+  final AppUser? user;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -39,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String get _displayName {
     final name = widget.profile?.displayName.trim();
     if (name != null && name.isNotEmpty) return name;
+    final userName = widget.user?.fullName.trim();
+    if (userName != null && userName.isNotEmpty) return userName;
     return 'Bạn';
   }
 
@@ -164,58 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     setState(() => _navIndex = index);
-  }
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _controller = HealthProfileController();
-  HealthProfile? _profile;
-  String? _message;
-  bool _isLoading = false;
-
-  Future<void> _loadProfile() async {
-    setState(() {
-      _isLoading = true;
-      _message = null;
-    });
-
-    try {
-      final profile = await _controller.fetchProfile('1');
-      setState(() {
-        _profile = profile;
-        _message = 'Đã tải hồ sơ từ backend.';
-      });
-    } catch (error) {
-      setState(() {
-        _message = 'Lỗi khi tải hồ sơ: $error';
-      });
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _createSampleProfile() async {
-    setState(() {
-      _isLoading = true;
-      _message = null;
-    });
-
-    try {
-      final profile = await _controller.createSampleProfile();
-      setState(() {
-        _profile = profile;
-        _message = 'Đã tạo hồ sơ mẫu và lưu vào backend.';
-      });
-    } catch (error) {
-      setState(() {
-        _message = 'Lỗi khi tạo hồ sơ: $error';
-      });
-    } finally {
-      setState(() => _isLoading = false);
-    }
   }
 
   @override

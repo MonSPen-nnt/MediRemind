@@ -12,6 +12,7 @@ import '../../screens/family/family_member_detail_screen.dart';
 import '../../screens/health_profile/health_profile_setup_screen.dart';
 import '../../screens/home/home_screen.dart';
 import '../../screens/welcome/welcome_screen.dart';
+import '../../models/app_user.dart';
 import '../../models/family_member.dart';
 import '../../models/health_profile.dart';
 import 'fade_slide_route.dart';
@@ -66,9 +67,11 @@ abstract final class AppRoutes {
           settings: settings,
         );
       case home:
-        final profile = settings.arguments as HealthProfile?;
+        final arguments = settings.arguments;
+        final profile = arguments is HealthProfile ? arguments : null;
+        final user = arguments is AppUser ? arguments : null;
         return fadeSlideRoute(
-          page: HomeScreen(profile: profile),
+          page: HomeScreen(profile: profile, user: user),
           settings: settings,
         );
       case familyLink:
@@ -80,8 +83,14 @@ abstract final class AppRoutes {
         );
       case familyMemberDetail:
         final member = settings.arguments as FamilyMember?;
+        if (member == null) {
+          return fadeSlideRoute(
+            page: const FamilyLinkScreen(),
+            settings: settings,
+          );
+        }
         return fadeSlideRoute(
-          page: FamilyMemberDetailScreen(member: member!),
+          page: FamilyMemberDetailScreen(member: member),
           settings: settings,
         );
       default:

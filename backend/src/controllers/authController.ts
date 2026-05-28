@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { FirebaseAuthDto } from "../dtos/authDto";
 import { AuthService } from "../services/authService";
+import { isFirebaseSetupError } from "../services/firebaseAdminService";
 
 const service = new AuthService();
 
@@ -28,6 +29,10 @@ export class AuthController {
         },
       });
     } catch (error) {
+      if (isFirebaseSetupError(error)) {
+        res.status(503).json({ message: (error as Error).message });
+        return;
+      }
       res.status(401).json({ message: (error as Error).message });
     }
   }

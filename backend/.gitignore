@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .env
+.env.local
+
+# Firebase service account (never commit)
+secrets/*
+!secrets/README.md
+!secrets/.gitkeep
+firebase-service-account.json
+*-firebase-adminsdk-*.json

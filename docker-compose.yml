@@ -20,6 +20,8 @@ services:
       dockerfile: Dockerfile
 
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
 
     depends_on:
       - postgres
@@ -27,7 +29,11 @@ services:
     ports:
       - "3001:3001"
 
+    volumes:
+      - ./backend/secrets:/usr/src/app/secrets:ro
+
     environment:
+      FIREBASE_SERVICE_ACCOUNT_PATH: /usr/src/app/secrets/firebase-service-account.json
       PG_HOST: postgres
       PG_PORT: 5432
       PG_DATABASE: duanflutter

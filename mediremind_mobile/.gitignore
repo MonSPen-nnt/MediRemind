@@ -46,6 +46,14 @@ app.*.map.json
 # Node.js
 node_modules/
 .env
+.env.local
+!.env.example
+
+# Firebase client config (generate locally: flutterfire configure)
+lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
 
 # VS Code
 .vscode/

@@ -1,16 +1,16 @@
-# mediremind_mobile
+# MediRemind Mobile
 
-A new Flutter project.
+Flutter app cho MediRemind.
 
-## Getting Started
+## Thiet lap
 
-This project is a starting point for a Flutter application.
+1. Cau hinh Firebase: xem [FIREBASE_AUTH_SETUP.md](FIREBASE_AUTH_SETUP.md).
+2. Chay backend (tu thu muc goc repo): `docker compose up -d`.
+3. Chay app:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter pub get
+flutter run -d chrome
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Tren may Android that: `flutter run --dart-define=DEV_HOST=<IP-LAN-cua-PC>`.

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../core/config/api_config.dart';
 import '../../models/health_profile.dart';
 
 abstract class HealthProfileRemoteDataSource {
@@ -14,13 +15,12 @@ class HealthProfileRemoteDataSourceImpl
   HealthProfileRemoteDataSourceImpl({http.Client? client})
     : _client = client ?? http.Client();
 
-  static const _baseUrl = 'http://10.0.2.2:3001';
   final http.Client _client;
 
   @override
   Future<HealthProfile> fetchHealthProfile(String id) async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/api/health-profile/$id'),
+      ApiConfig.endpoint('api/health-profile/$id'),
     );
 
     if (response.statusCode != 200) {
@@ -35,7 +35,7 @@ class HealthProfileRemoteDataSourceImpl
   @override
   Future<HealthProfile> createHealthProfile(HealthProfile profile) async {
     final response = await _client.post(
-      Uri.parse('$_baseUrl/api/health-profile'),
+      ApiConfig.endpoint('api/health-profile'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(profile.toJson()),
     );
