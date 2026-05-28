@@ -6,9 +6,14 @@ import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/password_changed_screen.dart';
 import '../../screens/auth/register_screen.dart';
 import '../../screens/auth/verification_screen.dart';
+import '../../screens/family/add_family_member_screen.dart';
+import '../../screens/family/family_link_screen.dart';
+import '../../screens/family/family_member_detail_screen.dart';
 import '../../screens/health_profile/health_profile_setup_screen.dart';
 import '../../screens/home/home_screen.dart';
 import '../../screens/welcome/welcome_screen.dart';
+import '../../models/family_member.dart';
+import '../../models/health_profile.dart';
 import 'fade_slide_route.dart';
 
 abstract final class AppRoutes {
@@ -21,6 +26,9 @@ abstract final class AppRoutes {
   static const String passwordChanged = '/password-changed';
   static const String healthProfileSetup = '/health-profile-setup';
   static const String home = '/home';
+  static const String familyLink = '/family-link';
+  static const String addFamilyMember = '/family-add';
+  static const String familyMemberDetail = '/family-detail';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -58,7 +66,24 @@ abstract final class AppRoutes {
           settings: settings,
         );
       case home:
-        return fadeSlideRoute(page: const HomeScreen(), settings: settings);
+        final profile = settings.arguments as HealthProfile?;
+        return fadeSlideRoute(
+          page: HomeScreen(profile: profile),
+          settings: settings,
+        );
+      case familyLink:
+        return fadeSlideRoute(page: const FamilyLinkScreen(), settings: settings);
+      case addFamilyMember:
+        return fadeSlideRoute(
+          page: const AddFamilyMemberScreen(),
+          settings: settings,
+        );
+      case familyMemberDetail:
+        final member = settings.arguments as FamilyMember?;
+        return fadeSlideRoute(
+          page: FamilyMemberDetailScreen(member: member!),
+          settings: settings,
+        );
       default:
         return fadeSlideRoute(page: const WelcomeScreen(), settings: settings);
     }

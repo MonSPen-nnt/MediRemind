@@ -10,6 +10,7 @@ import '../../widgets/auth/auth_text_field.dart';
 import '../../widgets/auth/primary_button.dart';
 import '../../widgets/auth/secondary_button.dart';
 import '../../widgets/common/glass_surface.dart';
+import '../../widgets/health_profile/medical_info_step.dart';
 import '../../widgets/health_profile/metric_slider_card.dart';
 import '../../widgets/health_profile/option_chip.dart';
 import '../../widgets/health_profile/profile_summary_tile.dart';
@@ -62,16 +63,28 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
   double _weight = 60;
   String? _bloodType;
   final List<String> _conditions = [];
+  final List<String> _allergyTags = [];
 
   static const _genders = ['Nam', 'Nữ', 'Khác'];
-  static const _bloodTypes = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Chưa rõ'];
+  static const _bloodTypes = [
+    'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Chưa rõ',
+  ];
   static const _conditionsList = [
     'Tiểu đường',
     'Cao huyết áp',
     'Tim mạch',
     'Hen suyễn',
+    'Suy thận',
     'Không có',
   ];
+  static const _conditionIcons = {
+    'Tiểu đường': Icons.bloodtype_outlined,
+    'Cao huyết áp': Icons.favorite_outline_rounded,
+    'Tim mạch': Icons.monitor_heart_outlined,
+    'Hen suyễn': Icons.air_rounded,
+    'Suy thận': Icons.water_drop_outlined,
+    'Không có': Icons.check_circle_outline_rounded,
+  };
 
   @override
   void dispose() {
@@ -90,7 +103,9 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
         heightCm: _height,
         weightKg: _weight,
         bloodType: _bloodType,
-        allergies: _allergiesController.text.trim(),
+        allergies: _allergyTags.isNotEmpty
+            ? _allergyTags.join(', ')
+            : _allergiesController.text.trim(),
         conditions: List.from(_conditions),
         emergencyName: _emergencyNameController.text.trim(),
         emergencyPhone: _emergencyPhoneController.text.trim(),
@@ -207,23 +222,8 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
       context,
       AppRoutes.home,
       (route) => false,
+      arguments: _profile,
     );
-  }
-
-  void _toggleCondition(String c) {
-    setState(() {
-      if (c == 'Không có') {
-        _conditions.clear();
-        _conditions.add(c);
-        return;
-      }
-      _conditions.remove('Không có');
-      if (_conditions.contains(c)) {
-        _conditions.remove(c);
-      } else {
-        _conditions.add(c);
-      }
-    });
   }
 
   @override
@@ -374,54 +374,25 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
   }
 
   Widget _buildStep2() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      child: GlassSurface(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Nhóm máu',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                  ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            OptionChipWrap(
-              options: _bloodTypes,
-              selected: _bloodType,
-              onChanged: (v) => setState(() => _bloodType = v),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Bệnh nền (chọn nhiều)',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                  ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _conditionsList.map((c) {
-                return OptionChip(
-                  label: c,
-                  selected: _conditions.contains(c),
-                  onTap: () => _toggleCondition(c),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            AuthTextField(
-              controller: _allergiesController,
-              label: 'Dị ứng thuốc / thực phẩm',
-              hint: 'VD: Penicillin, hải sản... (để trống nếu không)',
-              icon: Icons.warning_amber_rounded,
-              textInputAction: TextInputAction.done,
-            ),
-          ],
-        ),
-      ),
+    return MedicalInfoStep(
+      bloodType: _bloodType,
+      conditions: _conditions,
+      allergyTags: _allergyTags,
+      allergiesController: _allergiesController,
+      bloodTypes: _bloodTypes,
+      conditionsList: _conditionsList,
+      conditionIcons: _conditionIcons,
+      onBloodTypeChanged: (v) => setState(() => _bloodType = v),
+      onConditionsChanged: (list) => setState(() {
+        _conditions
+          ..clear()
+          ..addAll(list);
+      }),
+      onAllergyTagsChanged: (tags) => setState(() {
+        _allergyTags
+          ..clear()
+          ..addAll(tags);
+      }),
     );
   }
 
@@ -515,13 +486,14 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                       ? 'Không ghi nhận'
                       : profile.conditions.join(', '),
                 ),
-                if (profile.allergies.isNotEmpty)
-                  ProfileSummaryTile(
-                    icon: Icons.warning_amber_rounded,
-                    label: 'Dị ứng',
-                    value: profile.allergies,
-                    tint: AppColors.accentWarm,
-                  ),
+                ProfileSummaryTile(
+                  icon: Icons.warning_amber_rounded,
+                  label: 'Dị ứng thuốc',
+                  value: profile.allergies.isNotEmpty
+                      ? profile.allergies
+                      : 'Không ghi nhận',
+                  tint: AppColors.accentWarm,
+                ),
               ],
             ),
           ),
