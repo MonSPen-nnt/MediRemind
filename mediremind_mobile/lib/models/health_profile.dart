@@ -66,4 +66,40 @@ class HealthProfile {
       emergencyPhone: emergencyPhone ?? this.emergencyPhone,
     );
   }
+
+  factory HealthProfile.fromJson(Map<String, dynamic> json) {
+    return HealthProfile(
+      displayName: json['displayName'] as String? ?? '',
+      dateOfBirth: json['dateOfBirth'] == null
+          ? null
+          : DateTime.tryParse(json['dateOfBirth'] as String),
+      gender: json['gender'] as String?,
+      heightCm: (json['heightCm'] as num?)?.toDouble() ?? 165,
+      weightKg: (json['weightKg'] as num?)?.toDouble() ?? 60,
+      bloodType: json['bloodType'] as String?,
+      allergies: json['allergies'] as String? ?? '',
+      conditions:
+          (json['conditions'] as List<dynamic>?)
+              ?.map((value) => value.toString())
+              .toList() ??
+          const [],
+      emergencyName: json['emergencyName'] as String? ?? '',
+      emergencyPhone: json['emergencyPhone'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'displayName': displayName,
+      'dateOfBirth': dateOfBirth?.toIso8601String(),
+      'gender': gender,
+      'heightCm': heightCm,
+      'weightKg': weightKg,
+      'bloodType': bloodType,
+      'allergies': allergies,
+      'conditions': conditions,
+      'emergencyName': emergencyName,
+      'emergencyPhone': emergencyPhone,
+    };
+  }
 }

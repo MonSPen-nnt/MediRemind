@@ -167,6 +167,58 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _controller = HealthProfileController();
+  HealthProfile? _profile;
+  String? _message;
+  bool _isLoading = false;
+
+  Future<void> _loadProfile() async {
+    setState(() {
+      _isLoading = true;
+      _message = null;
+    });
+
+    try {
+      final profile = await _controller.fetchProfile('1');
+      setState(() {
+        _profile = profile;
+        _message = 'Đã tải hồ sơ từ backend.';
+      });
+    } catch (error) {
+      setState(() {
+        _message = 'Lỗi khi tải hồ sơ: $error';
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _createSampleProfile() async {
+    setState(() {
+      _isLoading = true;
+      _message = null;
+    });
+
+    try {
+      final profile = await _controller.createSampleProfile();
+      setState(() {
+        _profile = profile;
+        _message = 'Đã tạo hồ sơ mẫu và lưu vào backend.';
+      });
+    } catch (error) {
+      setState(() {
+        _message = 'Lỗi khi tạo hồ sơ: $error';
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     var stagger = 0;
     final next = _nextDose;
